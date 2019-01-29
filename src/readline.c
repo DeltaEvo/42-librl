@@ -6,7 +6,7 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 10:34:25 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/01/28 16:47:46 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/01/29 11:09:48 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,7 @@ static void delete_from_buffer (enum e_rl_tok token, struct rl_state *state)
 	else
 		assert(false);
 	assert(state->index >= size);
-	memcpy(state->buffer + state->index - size, state->buffer + state->index, state->len - state->index);
+	memmove(state->buffer + state->index - size, state->buffer + state->index, state->len - state->index);
 	state->index -= size;
 	state->len -= size;
 }
@@ -127,7 +127,7 @@ static void	move_in_buffer(char *buffer, size_t to, size_t start, size_t len)
 	while (i < len)
 	{
 		c = buffer[start + i];
-		memcpy(buffer + to + i + 1, buffer + to + i, start - to);
+		memmove(buffer + to + i + 1, buffer + to + i, start - to);
 		buffer[to + i] = c;
 		i++;
 	}
@@ -142,15 +142,16 @@ static void	render(struct rl_state *state)
 	size_t	columns = state->tty_columns - state->prompt_size;
 	size_t	len;
 	bool	first;
+	size_t	up_count;
 
-	i = state->y_pos;
-	while (i > 0)
+	i = state->current_tty_line;
+	while (i != state->tty_lines)
 	{
 		write(1, CSI "B", sizeof(CSI) + 1);
-		i--;
+		i++;
 	}
 	i = 1;
-	while (i < state->y_len)
+	while (i < state->tty_lines)
 	{
 		write(1, CSI "2K", sizeof(CSI) + 1);
 		write(1, CSI "A", sizeof(CSI));
@@ -161,6 +162,7 @@ static void	render(struct rl_state *state)
 	line = state->buffer;
 	y = 0;
 	first = true;
+	up_count = 0;
 	while (true)
 	{
 		len = state->index - (line - state->buffer);
@@ -170,13 +172,15 @@ static void	render(struct rl_state *state)
 			len = state->index - (line - state->buffer);
 			while (i < len)
 			{
+				y++;
+				if ((size_t)(line - state->buffer) <= state->y_offset)
+					up_count++;
 				if (first)
 					first = false;
 				else
 					write(STDOUT_FILENO, "                                ", state->prompt_size);
 				write(STDOUT_FILENO, line + i, columns > len - i ? len - i : columns);
 				i += columns;
-				y++;
 			}
 			break ;
 		}
@@ -184,29 +188,39 @@ static void	render(struct rl_state *state)
 		len = end - line;
 		while (i < len)
 		{
+			y++;
+			if ((size_t)(line - state->buffer) <= state->y_offset)
+				up_count++;
 			if (first)
 				first = false;
 			else
 				write(STDOUT_FILENO, "                                ", state->prompt_size);
 			write(STDOUT_FILENO, line + i, columns > len - i ? len - i : columns);
-			write(STDOUT_FILENO, "\\\n", 3);
 			i += columns;
-			y++;
 		}
+		write(STDOUT_FILENO, "\\\n\r", 4);
 		line = end + 1;
+		if ((size_t)(line - state->buffer) == state->index)
+		{
+			y++;
+			if ((size_t)(line - state->buffer) <= state->y_offset)
+				up_count++;
+		}
 	}
-	state->y_len = y;
+	up_count -= state->x_len / columns - state->x_pos / columns;
+	state->tty_lines = y;
+	state->current_tty_line = up_count;
 	/*write(STDOUT_FILENO, CSI "K", sizeof(CSI));
 	write(STDOUT_FILENO, state->buffer + state->x_pos, (state->x_len - state->x_pos) % (state->tty_columns - state->prompt_size));*/
 	printf(CSI "%zuG", state->prompt_size + 1 + state->x_pos % columns);
-	state->y_pos = len / columns - state->x_pos / columns; 
-	i = state->y_pos;
-	while (i > 0)
+	fflush(stdout);
+	//state->y_pos = len / columns - state->x_pos / columns; 
+	//printf("\n\r %zu %zu\n\r", up_count, y);
+	while (up_count != y)
 	{
 		write(1, CSI "A", sizeof(CSI) + 1);
-		i--;
+		up_count++;
 	}
-	fflush(stdout);
 }
 
 /*
@@ -216,27 +230,96 @@ static void	apply_state(struct rl_state *state, size_t last_index)
 {
 	if (last_index > state->index)
 		last_index = state->index;
-	move_in_buffer(state->buffer, state->x_pos, last_index, state->index - last_index);
+	move_in_buffer(state->buffer, state->y_offset + state->x_pos, last_index, state->index - last_index);
 	state->x_len += state->index - last_index;
 	state->x_pos += state->index - last_index;
 	render(state);
 }
 
+static bool rl_up(struct rl_state *state)
+{
+	size_t	old_offset;
+
+	if (state->y_offset > 0)
+	{
+		old_offset = state->y_offset;
+		state->y_offset -= 2;
+		while (state->y_offset > 0 && state->buffer[state->y_offset] != '\n')
+			state->y_offset--;
+		state->x_len = old_offset - state->y_offset;
+		if (state->x_pos > state->x_len)
+			state->x_pos = state->x_len;
+		return (true);
+	} else
+		return (false);
+}
+
+static bool rl_down(struct rl_state *state)
+{
+	char	*next;
+
+	next = memchr(state->buffer + state->y_offset + state->x_pos - 1, '\n', state->len - state->y_offset - state->x_pos + 1);
+	if (next)
+	{
+		state->y_offset = next - state->buffer + 1;
+		state->x_len = 0;
+		while (state->y_offset + state->x_len < state->len && state->buffer[state->y_offset + state->x_len] != '\n')
+			state->x_len++;
+		if (state->x_pos > state->x_len)
+			state->x_pos = state->x_len;
+		return (true);
+	} else
+		return (false);
+}
+
+static bool rl_left(struct rl_state *state)
+{
+	if (state->x_pos > 0)
+	{
+		state->x_pos--;
+		return (true);
+	}
+	else if (rl_up(state))
+	{
+		state->x_pos = state->x_len;
+		return (true);
+	} else
+		return (false);
+}
+
+static bool rl_right(struct rl_state *state)
+{
+	if (state->x_pos < state->x_len)
+	{
+		state->x_pos++;
+		return (true);
+	}
+	else if (rl_down(state))
+	{
+		state->x_pos = 0;
+		return (true);
+	} else
+		return (false);
+}
+
 static bool reduce_state(struct rl_state *state, enum e_rl_tok token)
 {
-	if (token == RL_LEFT && state->x_pos > 0)
-		state->x_pos--;
-	else if (token == RL_RIGHT && state->x_pos < state->x_len)
-		state->x_pos++;
+	if (token == RL_LEFT)
+		rl_left(state);
+	else if (token == RL_RIGHT)
+		rl_right(state);
+	else if (token == RL_UP)
+		rl_up(state);
+	else if (token == RL_DOWN)
+		rl_down(state);
 	else if (token == RL_ENTER_CTRL_M)
 	{
-		if (state->buffer[state->x_pos - 1] == '\\')
+		if (state->buffer[state->y_offset + state->x_pos - 1] == '\\')
 		{
-			state->buffer[state->x_pos - 1] = '\n';
+			state->buffer[state->y_offset + state->x_pos - 1] = '\n';
+			state->y_offset += state->x_pos;
+			state->x_len = state->x_len - state->x_pos;
 			state->x_pos = 0;
-			state->x_len = 0;
-			state->y_pos++;
-			state->y_len++;
 		}
 		else
 			return (true);
@@ -251,15 +334,21 @@ static bool reduce_state(struct rl_state *state, enum e_rl_tok token)
 		state->index = -1;
 		return (true);
 	}
-	else if (token == RL_DELETE && state->x_pos > 0)
+	else if (token == RL_DELETE)
 	{
-		memcpy(state->buffer + state->x_pos - 1, state->buffer + state->x_pos, state->len - state->x_pos);
-		state->index--;
-		state->len--;
-		state->x_pos--;
-		state->x_len--;
-		write(1, CSI "D", sizeof(CSI));
-		state->dirty = true;
+		if (rl_left(state)) {
+			char c = state->buffer[state->y_offset + state->x_pos];
+			memmove(state->buffer + state->x_pos + state->y_offset, state->buffer + state->x_pos + state->y_offset + 1, state->len - (state->x_pos + 1 + state->y_offset));
+			state->index--;
+			state->len--;
+			state->x_len--;
+			if (c == '\n')
+			{
+				while (state->y_offset + state->x_len < state->len && state->buffer[state->y_offset + state->x_len] != '\n')
+					state->x_len++;
+			}
+			state->dirty = true;
+		}
 	}
 	else if (token == RL_NONE)
 		state->dirty = true;

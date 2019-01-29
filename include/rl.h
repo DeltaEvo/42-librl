@@ -6,7 +6,7 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 10:24:58 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/01/28 15:12:45 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/01/29 10:23:59 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,12 @@ struct		rl_state {
 	size_t	len;
 	size_t	x_pos;
 	size_t	x_len;
-	size_t	y_pos;
-	size_t	y_len;
+	size_t	y_offset;
 	bool	dirty;
 
 	size_t	tty_columns;
+	size_t	tty_lines;
+	size_t	current_tty_line;
 };
 
 enum e_rl_tok {
