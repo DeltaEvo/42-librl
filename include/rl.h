@@ -1,23 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   librl.h                                            :+:      :+:    :+:   */
+/*   rl.h                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 10:24:58 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/01/29 14:32:26 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/01/29 17:13:46 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBRL
-# define LIBRL
+#ifndef LIB_RL_H
+# define LIB_RL_H
 
 # include <stddef.h>
 # include <unistd.h>
 # include <stdbool.h>
 
-enum e_rl_tok {
+enum		e_rl_tok {
 	RL_NONE,
 	RL_CTRL_A = 1,
 	RL_CTRL_B = 2,
@@ -53,50 +53,53 @@ enum e_rl_tok {
 	RL_LEFT,
 	RL_HOME,
 	RL_END,
-
-/*
-** Len marker, keep at end
-*/
 	RL_TOKEN_LEN
 };
 
-struct		rl_state;
+struct s_rl_state;
 
-typedef void (*t_rl_hook)(struct rl_state *state);
+typedef void	(*t_rl_hook)(struct s_rl_state *state);
 
-struct		rl_state {
-	char	*prompt;
-	size_t	prompt_size;
+struct			s_rl_state {
+	char		*prompt;
+	size_t		prompt_size;
 
-	char	*buffer;
-	size_t	buffer_size;
+	char		*buffer;
+	size_t		buffer_size;
 
-	size_t	index;
-	size_t	len;
-	size_t	x_pos;
-	size_t	x_len;
-	size_t	y_offset;
+	size_t		index;
+	size_t		len;
+	size_t		x_pos;
+	size_t		x_len;
+	size_t		y_offset;
 
-	size_t	tty_columns;
-	size_t	tty_lines;
-	size_t	current_tty_line;
+	size_t		tty_columns;
+	size_t		tty_lines;
+	size_t		current_tty_line;
 
-	bool	end: 1;
+	bool		end;
 
 	t_rl_hook	hooks[RL_TOKEN_LEN];
 };
 
+ssize_t			readline(struct s_rl_state *state);
 
-ssize_t	readline(struct rl_state *state);
+void			rl_render(struct s_rl_state *state);
+bool			rl_right(struct s_rl_state *state);
+bool			rl_left(struct s_rl_state *state);
+bool			rl_down(struct s_rl_state *state);
+bool			rl_up(struct s_rl_state *state);
+void			rl_ctrl_d(struct s_rl_state *state);
+void			rl_ctrl_c(struct s_rl_state *state);
+void			rl_enter(struct s_rl_state *state);
+void			rl_delete(struct s_rl_state *state);
 
-void	rl_render(struct rl_state *state);
-bool 	rl_right(struct rl_state *state);
-bool 	rl_left(struct rl_state *state);
-bool 	rl_down(struct rl_state *state);
-bool 	rl_up(struct rl_state *state);
-void	rl_ctrl_d(struct rl_state *state);
-void	rl_ctrl_c(struct rl_state *state);
-void	rl_enter(struct rl_state *state);
-void	rl_delete(struct rl_state *state);
+/*
+** Internals
+*/
+
+void			rl_delete_token_from_buffer (enum e_rl_tok token,
+						struct s_rl_state *state);
+size_t			rl_token(enum e_rl_tok *tok, char *part, size_t size);
 
 #endif

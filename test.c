@@ -6,11 +6,11 @@
 int main() {
 	char		buf[5000];
 	ssize_t		size;
-	struct rl_state *state;
+	struct s_rl_state *state;
 
 	if (!isatty(0))
 		return (1);
-	while ((size = readline(state = &(struct rl_state) {
+	while ((size = readline(state = &(struct s_rl_state) {
 		.prompt = PROMPT,
 		.prompt_size = sizeof(PROMPT) - 1,
 		.buffer = buf,

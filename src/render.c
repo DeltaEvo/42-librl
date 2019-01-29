@@ -6,7 +6,7 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/29 14:31:43 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/01/29 15:31:39 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/01/29 17:08:38 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 #define CSI "\33["
 
-static void		clear_lines(struct rl_state *state)
+static void		clear_lines(struct s_rl_state *state)
 {
 	size_t	i;
 
@@ -36,8 +36,8 @@ static void		clear_lines(struct rl_state *state)
 	write(1, CSI "2K" CSI "0G", sizeof(CSI) * 2 + 2);
 }
 
-static void		print_line(struct rl_state *state, char *line, size_t line_len,
-		bool has_prompt)
+static void		print_line(struct s_rl_state *state, char *line,
+		size_t line_len, bool has_prompt)
 {
 	size_t	i;
 
@@ -55,7 +55,7 @@ static void		print_line(struct rl_state *state, char *line, size_t line_len,
 		write(STDOUT_FILENO, "\n", 1);
 }
 
-static size_t	print_lines(struct rl_state *state, size_t y)
+static size_t	print_lines(struct s_rl_state *state, size_t y)
 {
 	char	*line;
 	char	*end;
@@ -83,7 +83,7 @@ static size_t	print_lines(struct rl_state *state, size_t y)
 	return (y);
 }
 
-void			rl_render(struct rl_state *state)
+void			rl_render(struct s_rl_state *state)
 {
 	size_t	i;
 

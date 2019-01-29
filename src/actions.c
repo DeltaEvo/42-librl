@@ -6,14 +6,14 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/29 11:34:33 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/01/29 15:43:30 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/01/29 16:30:02 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rl.h"
 #include <string.h>
 
-void	rl_delete(struct rl_state *state)
+void	rl_delete(struct s_rl_state *state)
 {
 	char	c;
 
@@ -36,7 +36,7 @@ void	rl_delete(struct rl_state *state)
 	}
 }
 
-void	rl_enter(struct rl_state *state)
+void	rl_enter(struct s_rl_state *state)
 {
 	if (state->x_pos > 0
 	&& state->buffer[state->y_offset + state->x_pos - 1] == '\\')
@@ -50,13 +50,13 @@ void	rl_enter(struct rl_state *state)
 		state->end = true;
 }
 
-void	rl_ctrl_c(struct rl_state *state)
+void	rl_ctrl_c(struct s_rl_state *state)
 {
 	state->index = 0;
 	state->end = true;
 }
 
-void	rl_ctrl_d(struct rl_state *state)
+void	rl_ctrl_d(struct s_rl_state *state)
 {
 	state->index = -1;
 	state->end = true;

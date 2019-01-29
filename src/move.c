@@ -6,14 +6,14 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/29 11:27:56 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/01/29 13:27:41 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/01/29 16:30:16 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rl.h"
 #include <string.h>
 
-bool	rl_up(struct rl_state *state)
+bool	rl_up(struct s_rl_state *state)
 {
 	size_t	old_offset;
 
@@ -33,7 +33,7 @@ bool	rl_up(struct rl_state *state)
 		return (false);
 }
 
-bool	rl_down(struct rl_state *state)
+bool	rl_down(struct s_rl_state *state)
 {
 	char	*next;
 
@@ -54,7 +54,7 @@ bool	rl_down(struct rl_state *state)
 		return (false);
 }
 
-bool	rl_left(struct rl_state *state)
+bool	rl_left(struct s_rl_state *state)
 {
 	if (state->x_pos > 0)
 	{
@@ -71,7 +71,7 @@ bool	rl_left(struct rl_state *state)
 		return (false);
 }
 
-bool	rl_right(struct rl_state *state)
+bool	rl_right(struct s_rl_state *state)
 {
 	if (state->x_pos < state->x_len)
 	{
