@@ -6,7 +6,7 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 10:24:58 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/01/29 10:23:59 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/01/29 14:32:26 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,25 +16,6 @@
 # include <stddef.h>
 # include <unistd.h>
 # include <stdbool.h>
-
-struct		rl_state {
-	char	*prompt;
-	size_t	prompt_size;
-
-	char	*buffer;
-	size_t	buffer_size;
-
-	size_t	index;
-	size_t	len;
-	size_t	x_pos;
-	size_t	x_len;
-	size_t	y_offset;
-	bool	dirty;
-
-	size_t	tty_columns;
-	size_t	tty_lines;
-	size_t	current_tty_line;
-};
 
 enum e_rl_tok {
 	RL_NONE,
@@ -71,9 +52,51 @@ enum e_rl_tok {
 	RL_RIGHT,
 	RL_LEFT,
 	RL_HOME,
-	RL_END
+	RL_END,
+
+/*
+** Len marker, keep at end
+*/
+	RL_TOKEN_LEN
 };
 
+struct		rl_state;
+
+typedef void (*t_rl_hook)(struct rl_state *state);
+
+struct		rl_state {
+	char	*prompt;
+	size_t	prompt_size;
+
+	char	*buffer;
+	size_t	buffer_size;
+
+	size_t	index;
+	size_t	len;
+	size_t	x_pos;
+	size_t	x_len;
+	size_t	y_offset;
+
+	size_t	tty_columns;
+	size_t	tty_lines;
+	size_t	current_tty_line;
+
+	bool	end: 1;
+
+	t_rl_hook	hooks[RL_TOKEN_LEN];
+};
+
+
 ssize_t	readline(struct rl_state *state);
+
+void	rl_render(struct rl_state *state);
+bool 	rl_right(struct rl_state *state);
+bool 	rl_left(struct rl_state *state);
+bool 	rl_down(struct rl_state *state);
+bool 	rl_up(struct rl_state *state);
+void	rl_ctrl_d(struct rl_state *state);
+void	rl_ctrl_c(struct rl_state *state);
+void	rl_enter(struct rl_state *state);
+void	rl_delete(struct rl_state *state);
 
 #endif
