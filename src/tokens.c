@@ -28,9 +28,7 @@ static void	rl_token_escape(enum e_rl_tok *tok, char *part, size_t size,
 	j = *i;
 	if (++j >= size)
 		return ;
-	if (part[j] == '[')
-		return ;
-	else
+	if (part[j] != '[')
 	{
 		*tok = RL_ESC;
 		*i = j;
@@ -67,7 +65,7 @@ size_t		rl_token(enum e_rl_tok *tok, char *part, size_t size)
 		{
 			if (part[i] >= 1 && part[i] <= 26)
 				*tok = part[i++];
-			else if (part[i] == 27)
+			else if (part[i] == '\e')
 				rl_token_escape(tok, part, size, &i);
 			else if (part[i] == 127)
 			{

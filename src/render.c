@@ -63,6 +63,7 @@ static size_t	print_lines(struct s_rl_state *state, size_t y)
 	size_t	up_count;
 
 	line = state->buffer;
+	up_count = 0;
 	while (true)
 	{
 		len = state->index - (line - state->buffer);
