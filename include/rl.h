@@ -63,6 +63,7 @@ typedef void	(*t_rl_hook)(struct s_rl_state *state);
 struct			s_rl_state {
 	char		*prompt;
 	size_t		prompt_size;
+	size_t		prompt_len;
 
 	char		*buffer;
 	size_t		buffer_size;
@@ -80,6 +81,9 @@ struct			s_rl_state {
 	bool		end;
 
 	t_rl_hook	hooks[RL_TOKEN_LEN];
+	void		(*echo_hook)(struct s_rl_state *state, char *part, size_t size);
+
+	void		*user_data;
 };
 
 ssize_t			readline(struct s_rl_state *state);
@@ -93,6 +97,7 @@ void			rl_ctrl_d(struct s_rl_state *state);
 void			rl_ctrl_c(struct s_rl_state *state);
 void			rl_enter(struct s_rl_state *state);
 void			rl_delete(struct s_rl_state *state);
+void			rl_echo(struct s_rl_state *state, char *part, size_t size);
 
 /*
 ** Internals

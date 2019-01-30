@@ -82,7 +82,7 @@ static int	get_columns(int fd)
 static void	init_state(struct s_rl_state *state, struct termios *orig)
 {
 	switch_to_raw(STDIN_FILENO, orig);
-	state->tty_columns = get_columns(STDIN_FILENO);
+	state->tty_columns = get_columns(STDIN_FILENO) + 30;
 	if (!state->hooks[RL_LEFT])
 		state->hooks[RL_LEFT] = (t_rl_hook)rl_left;
 	if (!state->hooks[RL_RIGHT])
@@ -99,6 +99,8 @@ static void	init_state(struct s_rl_state *state, struct termios *orig)
 		state->hooks[RL_CTRL_D] = rl_ctrl_d;
 	if (!state->hooks[RL_DELETE])
 		state->hooks[RL_DELETE] = rl_delete;
+	if (!state->echo_hook)
+		state->echo_hook = rl_echo;
 }
 
 ssize_t		readline(struct s_rl_state *s)

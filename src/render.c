@@ -16,6 +16,12 @@
 
 #define CSI "\33["
 
+void			rl_echo(struct s_rl_state *state, char *part, size_t size)
+{
+	(void)state;
+	write(STDOUT_FILENO, part, size);
+}
+
 static void		clear_lines(struct s_rl_state *state)
 {
 	size_t	i;
@@ -41,13 +47,13 @@ static void		print_line(struct s_rl_state *state, char *line,
 {
 	size_t	i;
 
-	i = state->tty_columns - state->prompt_size;
+	i = state->tty_columns - state->prompt_len;
 	if (!has_prompt)
 		write(STDOUT_FILENO, "                           ", state->prompt_size);
-	write(STDOUT_FILENO, line, line_len > i ? i : line_len);
+	state->echo_hook(state, line, line_len > i ? i : line_len);
 	while (i < line_len)
 	{
-		write(STDOUT_FILENO, line + i, line_len - i > state->tty_columns
+		state->echo_hook(state, line + i, line_len - i > state->tty_columns
 									? state->tty_columns : line_len - i);
 		i += state->tty_columns;
 	}
@@ -70,7 +76,7 @@ static size_t	print_lines(struct s_rl_state *state, size_t y)
 		if ((end = memchr(line, '\n', len)))
 			len = end - line;
 		print_line(state, line, len, line == state->buffer);
-		y += 1 + (state->prompt_size + len) / state->tty_columns;
+		y += 1 + (state->prompt_len + len) / state->tty_columns;
 		if ((size_t)(line - state->buffer) <= state->y_offset)
 			up_count = y;
 		if (!end)
@@ -78,8 +84,8 @@ static size_t	print_lines(struct s_rl_state *state, size_t y)
 		write(STDOUT_FILENO, "\\\n\r", 3);
 		line = end + 1;
 	}
-	up_count -= (state->prompt_size + state->x_len) / state->tty_columns
-				- (state->prompt_size + state->x_pos) / state->tty_columns;
+	up_count -= (state->prompt_len + state->x_len) / state->tty_columns
+				- (state->prompt_len + state->x_pos) / state->tty_columns;
 	state->current_tty_line = up_count;
 	return (y);
 }
@@ -91,7 +97,7 @@ void			rl_render(struct s_rl_state *state)
 	clear_lines(state);
 	write(STDOUT_FILENO, state->prompt, state->prompt_size);
 	state->tty_lines = print_lines(state, 0);
-	printf(CSI "%zuG", (state->prompt_size + state->x_pos)
+	printf(CSI "%zuG", (state->prompt_len + state->x_pos)
 			% state->tty_columns + 1);
 	fflush(stdout);
 	i = state->tty_lines;
