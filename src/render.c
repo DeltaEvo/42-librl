@@ -6,7 +6,7 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/29 14:31:43 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/01/29 17:08:38 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/01/31 10:45:20 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ static void		print_line(struct s_rl_state *state, char *line,
 
 	i = state->tty_columns - state->prompt_len;
 	if (!has_prompt)
-		write(STDOUT_FILENO, "                           ", state->prompt_size);
+		write(STDOUT_FILENO, "                           ", state->prompt_len);
 	state->echo_hook(state, line, line_len > i ? i : line_len);
 	while (i < line_len)
 	{
