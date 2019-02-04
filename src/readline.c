@@ -6,7 +6,7 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 10:34:25 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/01/29 17:53:26 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/02/04 15:54:12 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ static int	get_columns(int fd)
 static void	init_state(struct s_rl_state *state, struct termios *orig)
 {
 	switch_to_raw(STDIN_FILENO, orig);
-	state->tty_columns = get_columns(STDIN_FILENO) + 30;
+	state->tty_columns = get_columns(STDIN_FILENO);
 	if (!state->hooks[RL_LEFT])
 		state->hooks[RL_LEFT] = (t_rl_hook)rl_left;
 	if (!state->hooks[RL_RIGHT])
