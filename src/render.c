@@ -6,7 +6,7 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/29 14:31:43 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/01/31 10:45:20 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/02/07 17:02:13 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ static size_t	print_lines(struct s_rl_state *state, size_t y)
 
 	line = state->buffer;
 	up_count = 0;
-	while (true)
+	while (line < state->buffer + state->index)
 	{
 		len = state->index - (line - state->buffer);
 		if ((end = memchr(line, '\n', len)))

@@ -6,7 +6,7 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 10:34:25 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/02/04 15:54:12 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/02/07 17:43:35 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ static int	get_columns(int fd)
 	struct winsize ws;
 
 	if (ioctl(fd, TIOCGWINSZ, &ws) == -1)
-		return (0);
+		return (80);
 	else
 		return (ws.ws_col);
 }
@@ -116,7 +116,7 @@ ssize_t		readline(struct s_rl_state *s)
 		apply_state(s, &last_index);
 		while (!(r = rl_token(&token, s->buffer + s->index, s->len - s->index)))
 			if (s->len >= s->buffer_size || (r = read(STDIN_FILENO,
-						s->buffer + s->len, s->buffer_size - s->len)) < 0)
+						s->buffer + s->len, s->buffer_size - s->len)) <= 0)
 			{
 				tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
 				return (r < 0 ? r : s->index);
