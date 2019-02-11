@@ -6,14 +6,12 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/29 17:09:59 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/01/29 17:28:57 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/02/11 13:12:46 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rl.h"
-#include <assert.h>
-#include <string.h>
-#include <ctype.h>
+#include "utils.h"
 
 /*
 ** Try to match a CSI Sequence: ESC[char
@@ -61,11 +59,11 @@ size_t		rl_token(enum e_rl_tok *tok, char *part, size_t size)
 	*tok = RL_NONE;
 	while (i < size)
 	{
-		if (iscntrl(part[i]))
+		if (part[i] <= 0x1f || part[i] == 127)
 		{
 			if (part[i] >= 1 && part[i] <= 26)
 				*tok = part[i++];
-			else if (part[i] == '\e')
+			else if (part[i] == 27)
 				rl_token_escape(tok, part, size, &i);
 			else if (part[i] == 127)
 			{
@@ -93,9 +91,9 @@ void		rl_delete_token_from_buffer(enum e_rl_tok token,
 			|| token == RL_LEFT || token == RL_HOME || token == RL_END)
 		size = 3;
 	else
-		assert(false);
-	assert(state->index >= size);
-	memmove(state->buffer + state->index - size, state->buffer + state->index,
+		return ;
+
+	ft_memmove(state->buffer + state->index - size, state->buffer + state->index,
 			state->len - state->index);
 	state->index -= size;
 	state->len -= size;

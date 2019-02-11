@@ -6,18 +6,17 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 10:34:25 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/02/07 17:43:35 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/02/11 13:13:44 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rl.h"
+#include "utils.h"
 #include <stdbool.h>
 #include <termios.h>
 #include <unistd.h>
 #include <ctype.h>
 #include <sys/ioctl.h>
-#include <string.h>
-#include <assert.h>
 
 static bool	switch_to_raw(int fd, struct termios *orig_termios)
 {
@@ -42,12 +41,11 @@ static void	move_in_buffer(char *buffer, size_t to, size_t start, size_t len)
 
 	if (start == to || len == 0)
 		return ;
-	assert(start > to);
 	i = 0;
 	while (i < len)
 	{
 		c = buffer[start + i];
-		memmove(buffer + to + i + 1, buffer + to + i, start - to);
+		ft_memmove(buffer + to + i + 1, buffer + to + i, start - to);
 		buffer[to + i] = c;
 		i++;
 	}
@@ -93,6 +91,8 @@ static void	init_state(struct s_rl_state *state, struct termios *orig)
 		state->hooks[RL_DOWN] = (t_rl_hook)rl_down;
 	if (!state->hooks[RL_ENTER_CTRL_M])
 		state->hooks[RL_ENTER_CTRL_M] = rl_enter;
+	if (!state->hooks[RL_CTRL_J])
+		state->hooks[RL_CTRL_J] = rl_enter;
 	if (!state->hooks[RL_CTRL_C])
 		state->hooks[RL_CTRL_C] = rl_ctrl_c;
 	if (!state->hooks[RL_CTRL_D])
@@ -119,7 +119,7 @@ ssize_t		readline(struct s_rl_state *s)
 						s->buffer + s->len, s->buffer_size - s->len)) <= 0)
 			{
 				tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
-				return (r < 0 ? r : s->index);
+				return (r <= 0 ? r - 1 : s->index);
 			}
 			else
 				s->len += r;

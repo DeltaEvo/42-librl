@@ -6,13 +6,12 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/29 14:31:43 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/02/07 17:02:13 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/02/11 13:11:25 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rl.h"
-#include <string.h>
-#include <stdio.h>
+#include "utils.h"
 
 #define CSI "\33["
 
@@ -29,7 +28,7 @@ static void		clear_lines(struct s_rl_state *state)
 	i = state->current_tty_line;
 	while (i < state->tty_lines)
 	{
-		write(1, CSI "B", sizeof(CSI) + 1);
+		write(1, CSI "B", sizeof(CSI));
 		i++;
 	}
 	i = 1;
@@ -73,7 +72,7 @@ static size_t	print_lines(struct s_rl_state *state, size_t y)
 	while (line < state->buffer + state->index)
 	{
 		len = state->index - (line - state->buffer);
-		if ((end = memchr(line, '\n', len)))
+		if ((end = ft_memchr(line, '\n', len)))
 			len = end - line;
 		print_line(state, line, len, line == state->buffer);
 		y += 1 + (state->prompt_len + len) / state->tty_columns;
@@ -97,13 +96,14 @@ void			rl_render(struct s_rl_state *state)
 	clear_lines(state);
 	write(STDOUT_FILENO, state->prompt, state->prompt_size);
 	state->tty_lines = print_lines(state, 0);
-	printf(CSI "%zuG", (state->prompt_len + state->x_pos)
+	write(STDOUT_FILENO, CSI, sizeof(CSI) - 1);
+	ft_putnbr_fd(STDOUT_FILENO, (state->prompt_len + state->x_pos)
 			% state->tty_columns + 1);
-	fflush(stdout);
+	write(STDOUT_FILENO, "G", 1);
 	i = state->tty_lines;
 	while (i > state->current_tty_line)
 	{
-		write(1, CSI "A", sizeof(CSI) + 1);
+		write(1, CSI "A", sizeof(CSI));
 		i--;
 	}
 }
