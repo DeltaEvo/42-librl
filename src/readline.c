@@ -6,7 +6,7 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 10:34:25 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/02/12 11:08:53 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/02/12 13:09:11 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,23 +59,13 @@ static void	apply_state(struct s_rl_state *state)
 {
 	if (state->last_index < state->index)
 	{
-		move_in_buffer(state->buffer, state->y_offset + state->x_pos, state->last_index,
-				state->index - state->last_index);
+		move_in_buffer(state->buffer, state->y_offset + state->x_pos,
+				state->last_index, state->index - state->last_index);
 		state->x_len += state->index - state->last_index;
 		state->x_pos += state->index - state->last_index;
 	}
 	rl_render(state);
 	state->last_index = state->index;
-}
-
-static int	get_columns(int fd)
-{
-	struct winsize ws;
-
-	if (ioctl(fd, TIOCGWINSZ, &ws) == -1)
-		return (80);
-	else
-		return (ws.ws_col);
 }
 
 static void	init_state(struct s_rl_state *state, struct termios *orig)

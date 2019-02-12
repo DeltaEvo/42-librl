@@ -6,12 +6,13 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/02/11 13:05:29 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/02/12 11:08:07 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/02/12 13:08:00 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "utils.h"
 #include <unistd.h>
+#include <sys/ioctl.h>
 
 void	*rl_memmove(void *dst, const void *src, size_t len)
 {
@@ -57,7 +58,7 @@ void	*rl_memchr(const void *s, int c, size_t n)
 	return (NULL);
 }
 
-void		rl_putnbr_fd(int fd, int n)
+void	rl_putnbr_fd(int fd, int n)
 {
 	char		buf[11];
 	int			i;
@@ -77,4 +78,14 @@ void		rl_putnbr_fd(int fd, int n)
 	if (neg)
 		buf[--i] = '-';
 	write(fd, buf + i, sizeof(buf) - i);
+}
+
+int		get_columns(int fd)
+{
+	struct winsize	ws;
+
+	if (ioctl(fd, TIOCGWINSZ, &ws) == -1)
+		return (80);
+	else
+		return (ws.ws_col);
 }

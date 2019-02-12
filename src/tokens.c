@@ -6,7 +6,7 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/29 17:09:59 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/02/12 11:09:58 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/02/12 13:08:57 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,9 +92,8 @@ void		rl_delete_token_from_buffer(enum e_rl_tok token,
 		size = 3;
 	else
 		return ;
-
-	rl_memmove(state->buffer + state->index - size, state->buffer + state->index,
-			state->len - state->index);
+	rl_memmove(state->buffer + state->index - size, state->buffer
+			+ state->index, state->len - state->index);
 	state->index -= size;
 	state->len -= size;
 }

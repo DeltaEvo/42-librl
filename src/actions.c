@@ -6,7 +6,7 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/29 11:34:33 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/02/12 11:35:50 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/02/12 13:05:55 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,8 @@ void	rl_delete(struct s_rl_state *state)
 			while (state->y_offset + state->x_len < state->len
 					&& state->buffer[state->y_offset + state->x_len] != '\n')
 				state->x_len++;
-		} else
+		}
+		else
 			state->x_len--;
 	}
 }
