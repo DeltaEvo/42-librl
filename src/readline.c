@@ -6,7 +6,7 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 10:34:25 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/02/11 13:13:44 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/02/12 11:08:53 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ static void	move_in_buffer(char *buffer, size_t to, size_t start, size_t len)
 	while (i < len)
 	{
 		c = buffer[start + i];
-		ft_memmove(buffer + to + i + 1, buffer + to + i, start - to);
+		rl_memmove(buffer + to + i + 1, buffer + to + i, start - to);
 		buffer[to + i] = c;
 		i++;
 	}
@@ -55,16 +55,17 @@ static void	move_in_buffer(char *buffer, size_t to, size_t start, size_t len)
 ** Apply state to tty, last_index can be wrong if we remove a char
 */
 
-static void	apply_state(struct s_rl_state *state, size_t *last_index)
+static void	apply_state(struct s_rl_state *state)
 {
-	if (*last_index > state->index)
-		*last_index = state->index;
-	move_in_buffer(state->buffer, state->y_offset + state->x_pos, *last_index,
-			state->index - *last_index);
-	state->x_len += state->index - *last_index;
-	state->x_pos += state->index - *last_index;
+	if (state->last_index < state->index)
+	{
+		move_in_buffer(state->buffer, state->y_offset + state->x_pos, state->last_index,
+				state->index - state->last_index);
+		state->x_len += state->index - state->last_index;
+		state->x_pos += state->index - state->last_index;
+	}
 	rl_render(state);
-	*last_index = state->index;
+	state->last_index = state->index;
 }
 
 static int	get_columns(int fd)
@@ -106,14 +107,13 @@ static void	init_state(struct s_rl_state *state, struct termios *orig)
 ssize_t		readline(struct s_rl_state *s)
 {
 	struct termios	orig_termios;
-	size_t			last_index;
 	ssize_t			r;
 	enum e_rl_tok	token;
 
-	init_state(s + (last_index = 0), &orig_termios);
+	init_state(s, &orig_termios);
 	while (!s->end)
 	{
-		apply_state(s, &last_index);
+		apply_state(s);
 		while (!(r = rl_token(&token, s->buffer + s->index, s->len - s->index)))
 			if (s->len >= s->buffer_size || (r = read(STDIN_FILENO,
 						s->buffer + s->len, s->buffer_size - s->len)) <= 0)

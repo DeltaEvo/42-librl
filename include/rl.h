@@ -6,7 +6,7 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 10:24:58 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/01/29 17:13:46 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/02/12 10:58:07 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,7 @@ struct			s_rl_state {
 	size_t		buffer_size;
 
 	size_t		index;
+	size_t		last_index;
 	size_t		len;
 	size_t		x_pos;
 	size_t		x_len;

@@ -6,7 +6,7 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/29 14:31:43 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/02/11 13:11:25 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/02/12 11:17:02 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,14 +49,8 @@ static void		print_line(struct s_rl_state *state, char *line,
 	i = state->tty_columns - state->prompt_len;
 	if (!has_prompt)
 		write(STDOUT_FILENO, "                           ", state->prompt_len);
-	state->echo_hook(state, line, line_len > i ? i : line_len);
-	while (i < line_len)
-	{
-		state->echo_hook(state, line + i, line_len - i > state->tty_columns
-									? state->tty_columns : line_len - i);
-		i += state->tty_columns;
-	}
-	if (i == line_len)
+	state->echo_hook(state, line, line_len);
+	if ((line_len + state->prompt_len) % state->tty_columns == 0)
 		write(STDOUT_FILENO, "\n", 1);
 }
 
@@ -69,10 +63,10 @@ static size_t	print_lines(struct s_rl_state *state, size_t y)
 
 	line = state->buffer;
 	up_count = 0;
-	while (line < state->buffer + state->index)
+	while (line <= state->buffer + state->index)
 	{
 		len = state->index - (line - state->buffer);
-		if ((end = ft_memchr(line, '\n', len)))
+		if ((end = rl_memchr(line, '\n', len)))
 			len = end - line;
 		print_line(state, line, len, line == state->buffer);
 		y += 1 + (state->prompt_len + len) / state->tty_columns;
@@ -97,7 +91,7 @@ void			rl_render(struct s_rl_state *state)
 	write(STDOUT_FILENO, state->prompt, state->prompt_size);
 	state->tty_lines = print_lines(state, 0);
 	write(STDOUT_FILENO, CSI, sizeof(CSI) - 1);
-	ft_putnbr_fd(STDOUT_FILENO, (state->prompt_len + state->x_pos)
+	rl_putnbr_fd(STDOUT_FILENO, (state->prompt_len + state->x_pos)
 			% state->tty_columns + 1);
 	write(STDOUT_FILENO, "G", 1);
 	i = state->tty_lines;

@@ -6,12 +6,12 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/29 11:34:33 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/01/29 16:30:02 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/02/12 11:09:45 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rl.h"
-#include <string.h>
+#include "utils.h"
 
 void	rl_delete(struct s_rl_state *state)
 {
@@ -21,7 +21,7 @@ void	rl_delete(struct s_rl_state *state)
 	{
 		c = state->buffer[state->y_offset + state->x_pos];
 		if (state->y_offset + state->x_pos != state->len)
-			memmove(state->buffer + state->x_pos + state->y_offset,
+			rl_memmove(state->buffer + state->x_pos + state->y_offset,
 				state->buffer + state->x_pos + state->y_offset + 1, state->len
 				- (state->x_pos + state->y_offset + 1));
 		state->index--;

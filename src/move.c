@@ -6,7 +6,7 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/29 11:27:56 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/02/11 13:08:06 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/02/12 11:09:26 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ bool	rl_down(struct s_rl_state *state)
 {
 	char	*next;
 
-	next = ft_memchr(state->buffer + state->y_offset, '\n',
+	next = rl_memchr(state->buffer + state->y_offset, '\n',
 			state->len - state->y_offset);
 	if (next)
 	{
