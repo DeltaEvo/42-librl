@@ -6,7 +6,7 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 10:34:25 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/02/12 13:09:11 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/02/12 17:02:41 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,8 @@ static void	init_state(struct s_rl_state *state, struct termios *orig)
 		state->hooks[RL_DELETE] = rl_delete;
 	if (!state->echo_hook)
 		state->echo_hook = rl_echo;
+	if (state->init_hook)
+		state->init_hook(state);
 }
 
 ssize_t		readline(struct s_rl_state *s)

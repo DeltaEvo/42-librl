@@ -6,7 +6,7 @@
 /*   By: dde-jesu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/28 10:24:58 by dde-jesu          #+#    #+#             */
-/*   Updated: 2019/02/12 10:58:07 by dde-jesu         ###   ########.fr       */
+/*   Updated: 2019/02/12 17:02:59 by dde-jesu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,7 @@ struct			s_rl_state {
 
 	t_rl_hook	hooks[RL_TOKEN_LEN];
 	void		(*echo_hook)(struct s_rl_state *state, char *part, size_t size);
+	void		(*init_hook)(struct s_rl_state *state);
 
 	void		*user_data;
 };
